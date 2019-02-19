@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/url"
 	"path"
 	"strconv"
@@ -46,6 +47,7 @@ func (m Map) Add(src ...io.Reader) error {
 			return fmt.Errorf("$id is not a string")
 		}
 
+		log.Printf("Loaded schema %s", id)
 		m[id] = schema
 	}
 

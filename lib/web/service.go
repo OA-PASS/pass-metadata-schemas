@@ -36,5 +36,16 @@ func (s *SchemaService) Schemas(r *Request) ([]jsonschema.Instance, error) {
 		}
 	}
 
-	return jsonschema.Sorted(instances)
+	sorted, err := jsonschema.Sorted(instances)
+	if err != nil {
+		return nil, errors.Wrapf(err, "could not sort schemas")
+	}
+	for _, schema := range sorted {
+		err := schema.Dereference(s.SchemaFetcher)
+		if err != nil {
+			return nil, errors.Wrapf(err, "could not dereference schema %s", schema.ID())
+		}
+	}
+
+	return sorted, nil
 }

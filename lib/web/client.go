@@ -2,20 +2,21 @@ package web
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/pkg/errors"
 )
 
-// PrivatePassClient uses "private" backend URIs for interacting with the PASS repository
+// InternalPassClient uses "private" backend URIs for interacting with the PASS repository
 // It is intended for use on private networks.  Public URIs will be
 // converted to private URIs when accessing the repository.
-type PrivatePassClient struct {
+type InternalPassClient struct {
 	Requester
-	PublicBaseURI  string
-	PrivateBaseURI string
-	Credentials    *Credentials
+	ExternalBaseURI string
+	InternalBaseURI string
+	Credentials     *Credentials
 }
 
 type Credentials struct {
@@ -30,8 +31,11 @@ type Requester interface {
 
 // FetchEntity fetches and parses the PASS entity at the given URL to the struct or map
 // pointed to by entityPointer
-func (c *PrivatePassClient) FetchEntity(url string, entityPointer interface{}) error {
-	url = c.translate(url)
+func (c *InternalPassClient) FetchEntity(url string, entityPointer interface{}) error {
+	url, err := c.translate(url)
+	if err != nil {
+		return errors.Wrapf(err, "error translating url")
+	}
 
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -58,6 +62,10 @@ func (c *PrivatePassClient) FetchEntity(url string, entityPointer interface{}) e
 	return nil
 }
 
-func (c *PrivatePassClient) translate(uri string) string {
-	return strings.Replace(uri, c.PublicBaseURI, c.PrivateBaseURI, 1)
+func (c *InternalPassClient) translate(uri string) (string, error) {
+	if !strings.HasPrefix(uri, c.ExternalBaseURI) &&
+		!strings.HasPrefix(uri, c.InternalBaseURI) {
+		return uri, fmt.Errorf(`uri "%s" must start with internal or external baseuri"`, uri)
+	}
+	return strings.Replace(uri, c.ExternalBaseURI, c.InternalBaseURI, 1), nil
 }

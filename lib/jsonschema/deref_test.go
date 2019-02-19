@@ -208,6 +208,7 @@ func TestDereferenceResolveErrors(t *testing.T) {
 	}
 
 	for name, fetcher := range cases {
+		fetcher := fetcher
 		t.Run(name, func(t *testing.T) {
 			err := toTest.Dereference(fetcher)
 			if err == nil {

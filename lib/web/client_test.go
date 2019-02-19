@@ -47,7 +47,7 @@ func TestPrivateFetchEntity(t *testing.T) {
 
 	schemaURIs := []string{"http://example.org/foo", "http://example.org/bar"}
 
-	client := web.PrivatePassClient{
+	client := web.InternalPassClient{
 		Requester: &fakeRequester{
 			f: func(req *http.Request) (*http.Response, error) {
 
@@ -72,8 +72,8 @@ func TestPrivateFetchEntity(t *testing.T) {
 				}, nil
 			},
 		},
-		PrivateBaseURI: privateBaseURI,
-		PublicBaseURI:  publicBaseURI,
+		InternalBaseURI: privateBaseURI,
+		ExternalBaseURI: publicBaseURI,
 		Credentials: &web.Credentials{
 			Username: username,
 			Password: password,
@@ -90,6 +90,11 @@ func TestPrivateFetchEntity(t *testing.T) {
 	diffs := deep.Equal(schemaURIs, ref.Schemas)
 	if len(diffs) > 0 {
 		t.Fatalf("found difference in deserialized content %s", diffs)
+	}
+
+	err = client.FetchEntity("http://example.org/bad/resource", &ref)
+	if err == nil {
+		t.Fatalf("Should have thrown error on non whitelisted uri")
 	}
 }
 
@@ -126,7 +131,7 @@ func TestPrivateFetchEntityErrors(t *testing.T) {
 	for _, c := range cases {
 		c := c
 		t.Run(c.name, func(t *testing.T) {
-			client := web.PrivatePassClient{
+			client := web.InternalPassClient{
 				Requester: &fakeRequester{
 					f: c.f,
 				},

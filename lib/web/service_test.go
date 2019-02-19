@@ -74,8 +74,8 @@ func TestSchemaService(t *testing.T) {
 }
 
 func TestSchemaServiceErrors(t *testing.T) {
-	resourceUrl := "http://example.org/resource"
-	schemaUrl := "http://example.org/schema"
+	resourceURL := "http://example.org/resource"
+	schemaURL := "http://example.org/schema"
 
 	cases := map[string]web.SchemaService{
 		"passError": {
@@ -84,9 +84,9 @@ func TestSchemaServiceErrors(t *testing.T) {
 		"schemaError": {
 			PassClient: &staticClient{
 				resultsJSON: map[string]string{
-					resourceUrl: fmt.Sprintf(`{
+					resourceURL: fmt.Sprintf(`{
 					"schema": ["%s"]
-				}`, schemaUrl),
+				}`, schemaURL),
 				}},
 			SchemaFetcher: testFetcher(func(url *url.URL) (jsonschema.Instance, bool, error) {
 				return nil, false, fmt.Errorf("This is an error")
@@ -95,7 +95,7 @@ func TestSchemaServiceErrors(t *testing.T) {
 	}
 
 	req := &web.Request{
-		Resources: []string{resourceUrl},
+		Resources: []string{resourceURL},
 	}
 
 	for name, svc := range cases {

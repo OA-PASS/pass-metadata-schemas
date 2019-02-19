@@ -87,6 +87,7 @@ func TestReadTextErrors(t *testing.T) {
 	var request web.Request
 
 	for name, reader := range cases {
+		reader := reader
 		t.Run(name, func(t *testing.T) {
 			err := request.ReadText(reader)
 			if err == nil {
