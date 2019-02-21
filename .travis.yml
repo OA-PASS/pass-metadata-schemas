@@ -9,7 +9,6 @@ go:
 os: 
   - linux
   - osx
-  - windows
 
 install: true
 
