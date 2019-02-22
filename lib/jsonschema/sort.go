@@ -36,16 +36,13 @@ func Sorted(schemas []Instance) ([]Instance, error) {
 	// We provide a "greater than" function for the sort, since we want the "largest" (most depended upon)
 	// schemas first
 	sort.Slice(sorted, func(i, j int) bool {
-		fmt.Printf("Comparing %s and %s\n", sorted[i].schema.ID(), sorted[j].schema.ID())
 		// If j is a dependency of i, then i is not "greater than" j
 		if _, isDep := sorted[i].deps[sorted[j].id]; isDep {
-			fmt.Printf("  %s depends on %s, so it is less\n", sorted[i].schema.ID(), sorted[j].schema.ID())
 			return false
 		}
 
 		// if i is a dependency of j, then I is "greater than" j
 		if _, isDep := sorted[j].deps[sorted[i].id]; isDep {
-			fmt.Printf("  %s is depended on by %s, so it is not less\n", sorted[i].schema.ID(), sorted[j].schema.ID())
 			return true
 		}
 
@@ -55,7 +52,6 @@ func Sorted(schemas []Instance) ([]Instance, error) {
 
 	result := make([]Instance, len(schemas))
 	for i, v := range sorted {
-		fmt.Printf("%d: %s\n", i, v.schema["$id"])
 		result[i] = v.schema
 	}
 
@@ -76,7 +72,6 @@ func analyze(schemas []Instance) (a []analyzed, err error) {
 			return a, errors.Wrap(err, "could not analyze schemas")
 		}
 		a[i].nForms = countFormProperties(schema)
-		fmt.Printf("Num forms in %s is %d\n", schema.ID(), a[i].nForms)
 		a[i].schema = schema
 	}
 
