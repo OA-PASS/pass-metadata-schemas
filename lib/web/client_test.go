@@ -63,7 +63,7 @@ func TestPrivateFetchEntity(t *testing.T) {
 				return &http.Response{
 					Body: &fakeBody{
 						Reader: strings.NewReader(fmt.Sprintf(`{
-							"schema" : [
+							"schemas" : [
 								"%s",
 								"%s"
 							]

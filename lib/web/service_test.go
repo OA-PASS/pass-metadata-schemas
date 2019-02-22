@@ -42,7 +42,7 @@ func TestSchemaService(t *testing.T) {
 		PassClient: &staticClient{
 			resultsJSON: map[string]string{
 				resourceurl1: fmt.Sprintf(`{
-					"schema": [
+					"schemas": [
 						"%s",
 						"%s"
 					]
@@ -85,7 +85,7 @@ func TestSchemaServiceErrors(t *testing.T) {
 			PassClient: &staticClient{
 				resultsJSON: map[string]string{
 					resourceURL: fmt.Sprintf(`{
-					"schema": ["%s"]
+					"schemas": ["%s"]
 				}`, schemaURL),
 				}},
 			SchemaFetcher: testFetcher(func(url *url.URL) (jsonschema.Instance, bool, error) {

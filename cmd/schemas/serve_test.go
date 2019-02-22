@@ -23,7 +23,7 @@ func TestServe(t *testing.T) {
 		w.Header().Set("Content-Type", "application/ld+json")
 		w.Write([]byte(`{
 			"@context": "http://example.org/foo",
-			"schema": ["http://example.org/schemas/test"],
+			"schemas": ["http://example.org/schemas/test"],
 			"foo": "bar"
 		}`))
 	}))

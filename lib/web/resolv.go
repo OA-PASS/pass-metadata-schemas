@@ -30,7 +30,7 @@ type PassEntityFetcher interface {
 // SchemaRef is a "cut down" pass entity containing only
 // an array of schema URIs.  It is a subset of the pass Repository entity.
 type SchemaRef struct {
-	Schemas []string `json:"schema"`
+	Schemas []string `json:"schemas"`
 }
 
 // Resolve fetches and parses all schemas referenced by this SchemaRef
