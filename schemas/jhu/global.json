@@ -192,8 +192,6 @@
                 "label": "<div>ISSN Information</div><hr/>",
                 "hidden": false,
                 "fieldClass": "",
-                "helpers": ["This is a moo", "This is moo2"],
-                "helpersPosition": "above",
                 "items": {
                     "label": "<span class=\"d-none\"></span>",
                     "fieldClass": "row",
