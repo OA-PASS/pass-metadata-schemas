@@ -183,7 +183,7 @@
         "fields": {
             "title": {
                 "type": "textarea",
-                "label": "Article / Manuscript Title <small class=\"text-muted\">(required)</small>",
+                "label": "Article / Manuscript Title",
                 "placeholder": "Enter the manuscript title",
                 "rows": 2,
                 "cols": 100,
@@ -192,33 +192,33 @@
             },
             "journal-title": {
                 "type": "text",
-                "label": "Journal Title <small class=\"text-muted\">(required)</small>",
+                "label": "Journal Title",
                 "placeholder": "Enter the journal title",
                 "hidden": false,
                 "order": 2
             },
             "publicationType": {
                 "type": "select",
-                "label": "Publication Type <small class=\"text-muted\">(optional)</small>",
+                "label": "Publication Type",
                 "hidden": false,
                 "order": 3
             },
             "journal-NLMTA-ID": {
                 "type": "text",
-                "label": "Journal NLMTA ID <small class=\"text-muted\">(optional)</small>",
+                "label": "Journal NLMTA ID",
                 "placeholder": "nlmta",
                 "order": 4
             },
             "volume": {
                 "type": "text",
-                "label": "Volume  <small class=\"text-muted\">(optional)</small>",
+                "label": "Volume",
                 "placeholder": "Enter the volume",
                 "hidden": false,
                 "order": 5
             },
             "issue": {
                 "type": "text",
-                "label": "Issue  <small class=\"text-muted\">(optional)</small>",
+                "label": "Issue",
                 "placeholder": "Enter issue",
                 "hidden": false,
                 "order": 6
@@ -247,20 +247,20 @@
             },
             "publisher": {
                 "type": "text",
-                "label": "Publisher <small class=\"text-muted\">(optional)</small>",
+                "label": "Publisher",
                 "placeholder": "Enter the Publisher",
                 "hidden": false,
                 "order": 8
             },
             "publicationDate": {
                 "type": "date",
-                "label": "Publication Date  <small class=\"text-muted\">(optional)</small>",
+                "label": "Publication Date",
                 "hidden": false,
                 "order": 9
             },
             "abstract": {
                 "type": "textarea",
-                "label": "Abstract <small class=\"text-muted\">(optional)</small>",
+                "label": "Abstract",
                 "placeholder": "Enter abstract",
                 "fieldClass": "clearfix",
                 "hidden": false,
@@ -286,7 +286,7 @@
             },
             "firstAuthorAffiliation": {
                 "type": "select",
-                "label": "First Author Affiliation <small class=\"text-muted\">(required)</small>",
+                "label": "First Author Affiliation",
                 "hidden": false,
                 "order": 12
             },
