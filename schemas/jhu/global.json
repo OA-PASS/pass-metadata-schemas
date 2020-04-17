@@ -81,6 +81,18 @@
             "title": "Embargo end date",
             "description": "Date at which the article or manuscript may be made public"
         },
+        "hints": {
+            "type": "object",
+            "title": "Hints provided by the UI to backend services",
+            "description": "Hints have semantics shared by the UI and the backend that are intended to influence the backend processing of the submission.",
+            "properties": {
+                "collection-tags": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "title": "Tags impacting the collection used by Deposit Services for deposit"
+                }
+            }
+        },
         "journal-NLMTA-ID": {
             "type": "string",
             "title": "NTMLA",
