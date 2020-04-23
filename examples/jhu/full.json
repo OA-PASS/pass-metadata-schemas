@@ -27,6 +27,12 @@
     ],
     "under-embargo": "true",
     "Embargo-end-date": "2019-01-18",
+    "hints": {
+        "collection-tags": [
+            "covid",
+            "nobel"
+        ]
+    },
     "agent_information": {
         "name": "Chrome",
         "version": "704583"
