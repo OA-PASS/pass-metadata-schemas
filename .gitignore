@@ -1,4 +1,9 @@
 .idea
-*.iml
 *.iws
-*.imr
+*.ipr
+*.iml
+.project
+.classpath
+.settings/
+target/
+.vscode/
