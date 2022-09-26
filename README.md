@@ -16,7 +16,7 @@ These schemas follow a defined structure where properties in `/definitions/form/
     {
         "title": "Example schema",
         "description": "NIHMS-specific metadata requirements",
-        "$id": "https://github.com/OA-PASS/metadata-schemas/jhu/example.json",
+        "$id": "https://github.com/eclipse-pass/metadata-schemas/jhu/example.json",
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "definitions": {
@@ -88,11 +88,11 @@ To run the schema service,
 
 where `/path/to/schemas` is a directory, or files(s) containing JSON schemas.  This statically loads the set of schemas this service may return.  For example:
 
-    $ ./pass-schema-service serve schemas/jhu/
-    2019/02/21 16:40:40 Loaded schema https://github.com/OA-PASS/metadata-schemas/jhu/common.json
-    2019/02/21 16:40:40 Loaded schema https://github.com/OA-PASS/metadata-schemas/jhu/global.json
-    2019/02/21 16:40:40 Loaded schema https://github.com/OA-PASS/metadata-schemas/jhu/jscholarship.json
-    2019/02/21 16:40:40 Loaded schema https://github.com/OA-PASS/metadata-schemas/jhu/nihms.json
+    $ ./pass-schema-service serve jhu/
+    2019/02/21 16:40:40 Loaded schema https://github.com/eclipse-pass/metadata-schemas/jhu/common.json
+    2019/02/21 16:40:40 Loaded schema https://github.com/eclipse-pass/metadata-schemas/jhu/global.json
+    2019/02/21 16:40:40 Loaded schema https://github.com/eclipse-pass/metadata-schemas/jhu/jscholarship.json
+    2019/02/21 16:40:40 Loaded schema https://github.com/eclipse-pass/metadata-schemas/jhu/nihms.json
     2019/02/21 16:40:40 Listening on port 59152
 
 This output shows the random port the server is listening on, and lists the schemas it loaded.
@@ -130,9 +130,7 @@ will run the schema service on port 8080, and user the username `myUser` and pas
 
 ## Updating and deploying live schemas
 
-All schemas in the `schemas` directory are served by github pages.  When a schema changes, it needs to be deployed to the `gh-pages` branch to be served by http:
-
-    git subtree push --prefix schemas origin gh-pages
+All schemas in the `schemas` directory are served by github pages.  
 
 In addition, the go library exports the schemas and makes them statically available for validation.  To bake new schemas into the code, do:
 
