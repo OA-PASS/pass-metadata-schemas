@@ -88,7 +88,7 @@ To run the schema service,
 
 where `/path/to/schemas` is a directory, or files(s) containing JSON schemas.  This statically loads the set of schemas this service may return.  For example:
 
-    $ ./pass-schema-service serve jhu/
+    $ ./pass-schema-service serve schemas/jhu/
     2019/02/21 16:40:40 Loaded schema https://github.com/OA-PASS/metadata-schemas/jhu/common.json
     2019/02/21 16:40:40 Loaded schema https://github.com/OA-PASS/metadata-schemas/jhu/global.json
     2019/02/21 16:40:40 Loaded schema https://github.com/OA-PASS/metadata-schemas/jhu/jscholarship.json
@@ -124,7 +124,7 @@ The help page describes the possible commandline options.  Each option has a cor
         --merge, -m                 Always merge result schemas into a single one [$SCHEMA_SERVICE_MERGE]
 
 Command line options have a short form (`-i`) or a long form (`--internal`), which may be user interchangably.  For example, the following
-will run the schema service on port 8080, and user the username `myUser` and passeord `foo` for retrieving repository entities from the Fedora
+will run the schema service on port 8080, and user the username `myUser` and password `foo` for retrieving repository entities from the Fedora
 
     env SCHEMA_SERVICE_PORT=8080 pass-schema-service serve -u myUser --password foo  /path/to/schemas
 
