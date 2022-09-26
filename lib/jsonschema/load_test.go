@@ -3,7 +3,7 @@ package jsonschema_test
 import (
 	"testing"
 
-	"github.com/OA-PASS/metadata-schemas/lib/jsonschema"
+	"github.com/eclipse-pass/metadata-schemas/lib/jsonschema"
 )
 
 func TestLoad(t *testing.T) {

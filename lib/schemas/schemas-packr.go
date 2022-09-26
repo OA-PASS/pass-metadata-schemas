@@ -5,4 +5,4 @@
 // and any other packr generated files.
 package schemas
 
-import _ "github.com/OA-PASS/metadata-schemas/lib/schemas/packrd"
+import _ "github.com/eclipse-pass/metadata-schemas/lib/schemas/packrd"

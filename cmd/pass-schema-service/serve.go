@@ -7,8 +7,8 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/OA-PASS/metadata-schemas/lib/jsonschema"
-	"github.com/OA-PASS/metadata-schemas/lib/web"
+	"github.com/eclipse-pass/metadata-schemas/lib/jsonschema"
+	"github.com/eclipse-pass/metadata-schemas/lib/web"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 )

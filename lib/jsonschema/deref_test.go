@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/OA-PASS/metadata-schemas/lib/jsonschema"
+	"github.com/eclipse-pass/metadata-schemas/lib/jsonschema"
 	"github.com/go-test/deep"
 )
 

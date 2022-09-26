@@ -4,8 +4,8 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/OA-PASS/metadata-schemas/lib/jsonschema"
-	"github.com/OA-PASS/metadata-schemas/lib/schemas"
+	"github.com/eclipse-pass/metadata-schemas/lib/jsonschema"
+	"github.com/eclipse-pass/metadata-schemas/lib/schemas"
 )
 
 func TestValidate(t *testing.T) {

@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/OA-PASS/metadata-schemas/lib/jsonschema"
+	"github.com/eclipse-pass/metadata-schemas/lib/jsonschema"
 )
 
 const j10pPath = "repositories/j10p"
@@ -34,9 +34,9 @@ func TestFedoraIntegration(t *testing.T) {
 
 	// Finally, verify the ordering of results
 	expectedSchemas := []string{
-		"https://oa-pass.github.io/metadata-schemas/jhu/common.json",
-		"https://oa-pass.github.io/metadata-schemas/jhu/nihms.json",
-		"https://oa-pass.github.io/metadata-schemas/jhu/jscholarship.json",
+		"https://eclipse-pass.github.io/pass-metadata-schemas/schemas/jhu/common.json",
+		"https://eclipse-pass.github.io/pass-metadata-schemas/schemas/jhu/nihms.json",
+		"https://eclipse-pass.github.io/pass-metadata-schemas/schemas/jhu/jscholarship.json",
 	}
 
 	for i, schema := range schemas {
@@ -147,8 +147,8 @@ func setupFedora(t *testing.T, c *http.Client) {
 		"@type" : "Repository",
 		"agreementText" : "I agree",
 		"schemas": [
-			"https://oa-pass.github.io/metadata-schemas/jhu/jscholarship.json",
-			"https://oa-pass.github.io/metadata-schemas/jhu/common.json"
+			"https://eclipse-pass.github.io/pass-metadata-schemas/schemas/jhu/jscholarship.json",
+			"https://eclipse-pass.github.io/pass-metadata-schemas/schemas/jhu/common.json"
 		],
 		"integrationType" : "full",
 		"name" : "JScholarship",
@@ -161,8 +161,8 @@ func setupFedora(t *testing.T, c *http.Client) {
 		"@id" : "%s",
 		"@type" : "Repository",
 		"schemas": [
-			"https://oa-pass.github.io/metadata-schemas/jhu/nihms.json",
-			"https://oa-pass.github.io/metadata-schemas/jhu/common.json"
+			"https://eclipse-pass.github.io/pass-metadata-schemas/schemas/jhu/nihms.json",
+			"https://eclipse-pass.github.io/pass-metadata-schemas/schemas/jhu/common.json"
 		],
 		"integrationType" : "one-way",
 		"name" : "PubMed Central",
