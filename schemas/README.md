@@ -3,3 +3,4 @@
 These are schemas used for describing submission metadata blobs in PASS
 
 * [JHU](jhu/)
+* [Harvard](harvard/)
