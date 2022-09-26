@@ -1,7 +1,7 @@
 package web
 
 import (
-	"github.com/OA-PASS/metadata-schemas/lib/jsonschema"
+	"github.com/eclipse-pass/metadata-schemas/lib/jsonschema"
 	"github.com/pkg/errors"
 )
 

@@ -1,4 +1,4 @@
-module github.com/OA-PASS/metadata-schemas
+module github.com/eclipse-pass/metadata-schemas
 
 require (
 	github.com/go-test/deep v1.0.1

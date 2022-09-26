@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/OA-PASS/metadata-schemas/lib/jsonschema"
-	"github.com/OA-PASS/metadata-schemas/lib/web"
+	"github.com/eclipse-pass/metadata-schemas/lib/jsonschema"
+	"github.com/eclipse-pass/metadata-schemas/lib/web"
 	"github.com/go-test/deep"
 )
 
