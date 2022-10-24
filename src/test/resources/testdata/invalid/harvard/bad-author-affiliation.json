@@ -1,5 +1,5 @@
 {
-    "$schema": "https://oa-pass.github.io/metadata-schemas/harvard/global.json",
+    "$schema": "https://eclipse-pass.github.io/pass-metadata-schemas/schemas/harvard/global.json",
     "title": "The title of the article",
     "journal-title": "A Terrific Journal",
     "volume": "2",
