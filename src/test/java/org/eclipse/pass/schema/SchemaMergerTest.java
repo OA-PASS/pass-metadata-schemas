@@ -17,6 +17,8 @@ package org.eclipse.pass.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,9 +48,9 @@ class SchemaMergerTest {
         JsonNode schema_two = map.readTree(schema2);
         JsonNode expected = map.readTree(expected_json);
 
-        SchemaMerger merger = new SchemaMerger();
         List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two));
-        JsonNode result = merger.mergeSchemas(toMerge);
+        SchemaMerger merger = new SchemaMerger(toMerge);
+        JsonNode result = merger.mergeSchemas();
         assertEquals(result, expected);
     }
 
@@ -71,9 +73,9 @@ class SchemaMergerTest {
         JsonNode schema_two = map.readTree(schema2);
         JsonNode expected = map.readTree(expected_json);
 
-        SchemaMerger merger = new SchemaMerger();
         List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two));
-        JsonNode result = merger.mergeSchemas(toMerge);
+        SchemaMerger merger = new SchemaMerger(toMerge);
+        JsonNode result = merger.mergeSchemas();
         assertEquals(expected, result);
     }
 
@@ -89,9 +91,9 @@ class SchemaMergerTest {
         JsonNode schema_three = map.readTree(schema3);
         JsonNode expected = map.readTree(expected_json);
 
-        SchemaMerger merger = new SchemaMerger();
         List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two, schema_three));
-        JsonNode result = merger.mergeSchemas(toMerge);
+        SchemaMerger merger = new SchemaMerger(toMerge);
+        JsonNode result = merger.mergeSchemas();
         assertEquals(expected, result);
     }
 
@@ -109,9 +111,9 @@ class SchemaMergerTest {
         JsonNode schema_three = map.readTree(schema3);
         JsonNode expected = map.readTree(expected_json);
 
-        SchemaMerger merger = new SchemaMerger();
         List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two, schema_three));
-        JsonNode result = merger.mergeSchemas(toMerge);
+        SchemaMerger merger = new SchemaMerger(toMerge);
+        JsonNode result = merger.mergeSchemas();
         assertEquals(expected, result);
     }
 
@@ -139,10 +141,32 @@ class SchemaMergerTest {
         JsonNode schema_four = map.readTree(schema4);
         JsonNode expected = map.readTree(expected_json);
 
-        SchemaMerger merger = new SchemaMerger();
         List<JsonNode> toMerge = new ArrayList<JsonNode>(
                 Arrays.asList(schema_one, schema_two, schema_three, schema_four));
-        JsonNode result = merger.mergeSchemas(toMerge);
+        SchemaMerger merger = new SchemaMerger(toMerge);
+        JsonNode result = merger.mergeSchemas();
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void testMergerFull() throws IOException {
+        InputStream schema1 = SchemaMergerTest.class.getResourceAsStream("/example_schemas/schema1.json");
+        InputStream schema2 = SchemaMergerTest.class.getResourceAsStream("/example_schemas/schema2.json");
+        InputStream schema3 = SchemaMergerTest.class.getResourceAsStream("/example_schemas/schema3.json");
+        InputStream schema4 = SchemaMergerTest.class.getResourceAsStream("/example_schemas/schema4.json");
+        InputStream expected_json = SchemaMergerTest.class.getResourceAsStream("/example_schemas/example_merged.json");
+
+        ObjectMapper map = new ObjectMapper();
+        JsonNode schema_one = map.readTree(schema1);
+        JsonNode schema_two = map.readTree(schema2);
+        JsonNode schema_three = map.readTree(schema3);
+        JsonNode schema_four = map.readTree(schema4);
+        JsonNode expected = map.readTree(expected_json);
+
+        List<JsonNode> toMerge = new ArrayList<JsonNode>(
+                Arrays.asList(schema_one, schema_two, schema_three, schema_four));
+        SchemaMerger merger = new SchemaMerger(toMerge);
+        JsonNode result = merger.mergeSchemas();
         assertEquals(expected, result);
     }
 

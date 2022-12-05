@@ -15,9 +15,13 @@
  */
 package org.eclipse.pass.schema;
 
-import java.io.BufferedReader;
+import java.net.URISyntaxException;
 import java.util.List;
-import javax.json.JsonObject;
+
+import org.dataconservancy.pass.client.PassClient;
+import org.dataconservancy.pass.client.PassClientFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * The SchemaService class handles the business logic of the metadata schema
@@ -26,10 +30,19 @@ import javax.json.JsonObject;
  */
 public class SchemaService {
 
-    private BufferedReader input;
+    private PassClient client;
+    private List<String> repository_list;
+    private String next;
 
-    public SchemaService(BufferedReader input) {
-        this.input = input;
+    public SchemaService(List<String> repository_list) {
+        this.repository_list = repository_list;
+        client = PassClientFactory.getPassClient();
+    }
+
+    // Used in unit tests for inserting a mock client
+    public SchemaService(List<String> repository_list, PassClient client) {
+        this.repository_list = repository_list;
+        this.client = client;
     }
 
     /**
@@ -37,20 +50,21 @@ public class SchemaService {
      *
      * @param repositoryUris List of repository URIs containing schemas to be merged
      * @return JsonSchema merged schema
+     * @throws URISyntaxException
      */
-    private JsonObject getMergedSchema(List<String> repositoryUris) {
-
-        // Create UriReader instance to verify the validity of the input URIs
-        // May not be necessary now that the schemas are local
-        // UriReader uriReader = new UriReader(input);
+    JsonNode getMergedSchema() throws URISyntaxException {
 
         // Create a SchemaFetcher instance to get the schemas from the repository URIs
+        SchemaFetcher f = new SchemaFetcher(client);
+        List<JsonNode> repository_schemas = f.getSchemas(repository_list);
+        SchemaMerger m = new SchemaMerger(repository_schemas);
+        JsonNode mergedSchema = m.mergeSchemas();
 
         // (By default, schemas should be merged)
         // Create a SchemaMerger instance to merge the schemas returned by SchemaFetcher
         // If the merge fails, return individual schemas
 
-        return null;
+        return mergedSchema;
     }
 
 }

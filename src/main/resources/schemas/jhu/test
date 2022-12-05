@@ -1,0 +1,13 @@
+{
+	"title": {
+	"$ref": "jscholarship.json#/title"
+	},
+	"titleCopy": {
+	"$ref": "#/title"
+	},
+	"description": {
+	"$ref": "jscholarship.json#/description"
+	},
+	"$id": "https://eclipse-pass.github.io/pass-metadata-schemas/schemas/jhu/global.json",
+	
+}

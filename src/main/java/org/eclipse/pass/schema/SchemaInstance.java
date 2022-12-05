@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -33,6 +34,7 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
     private HashMap<String, String> refs = new HashMap<String, String>();
     private String keyRef = "$ref";
     private String schema_name;
+    private String schema_dir;
     private static Map<String, Collection<String>> orderedDeps = new HashMap<String, Collection<String>>();
 
     public SchemaInstance(JsonNode schema) {
@@ -40,7 +42,7 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
         String[] schema_tkns = schema.get("$id").asText().split("/");
         schema_name = schema_tkns[schema_tkns.length - 1]; // Do I need to add in a case to handle schema_tkns being
                                                            // empty???
-        findRefs(this.schema, "");
+        schema_dir = schema_tkns[schema_tkns.length - 3] + "/" + schema_tkns[schema_tkns.length - 2];
         findDeps();
     }
 
@@ -101,22 +103,39 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
     }
 
     /**
-     * Finds references in this schema to other schemas. Find by going through $ref
-     * tags in the schema
+     * Finds references in this schema. Find by going through $ref tags in the
+     * schema
      *
      * @return List<String> List of URIs to schemas referenced by this schema
      *
      */
-    private void findRefs(JsonNode node, String pointer) {
+    void dereference(JsonNode node, String pointer) {
         Iterator<String> it = node.fieldNames();
         it.forEachRemaining(k -> {
             JsonNode value = node.get(k);
+            String path;
+            String stringval;
             if (value.isValueNode()) {
                 if (k.equals(keyRef)) { // only do this if url is not null?
-                    refs.put(pointer.concat("/").concat(k), value.asText());
+                    path = pointer.concat("/").concat(k);
+                    stringval = value.asText();
+                    if (stringval.charAt(0) == '#') {
+                        ((ObjectNode) schema).replace(path.split("/")[1],
+                                resolveRef(path, stringval.split("#")[1], schema));
+                    } else { // referencing other schema
+                        try {
+                            JsonNode ext_schema = SchemaFetcher
+                                    .getLocalSchema("/" + schema_dir + "/" + stringval.split("#")[0]);
+                            ((ObjectNode) schema).replace(path.split("/")[1],
+                                    resolveRef(path, stringval.split("#")[1], ext_schema));
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
                 }
             } else if (value.isObject())
-                findRefs(value, pointer.concat("/").concat(k));
+                dereference(value, pointer.concat("/").concat(k));
         });
     }
 
@@ -134,24 +153,6 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
                 deps.put(path, ref);
         });
         orderedDeps.put(schema_name, deps.values());
-    }
-
-    public void dereference() {
-        deps.forEach((path, dep) -> {
-            path = path.substring(0, path.lastIndexOf("/"));
-            if (dep.charAt(0) == '#') {
-                resolveRef(path, dep.split("#")[1], schema);
-            } else { // referencing other schema
-                try {
-                    SchemaInstance ext_schema = SchemaFetcher.getSchema(dep.split("#")[0]);
-                    ((ObjectNode) schema).replace(path.split("/")[1],
-                            resolveRef(path, dep.split("#")[1], ext_schema.schema));
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
     private JsonNode resolveRef(String path, String dep, JsonNode schema) {
