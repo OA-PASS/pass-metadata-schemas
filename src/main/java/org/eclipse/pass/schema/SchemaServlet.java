@@ -18,11 +18,20 @@ package org.eclipse.pass.schema;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Servlet implementation class SchemaServlet This class handles the web request
@@ -32,12 +41,33 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/schemaservice")
 public class SchemaServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private List<String> repository_list;
+    private String next;
 
     /**
      * Servlet constructor.
      */
     public SchemaServlet() {
-        // TODO: Not implemented yet
+        repository_list = new ArrayList<String>();
+    }
+
+    public List<String> readText(BufferedReader r) throws IOException {
+        // r.readLine(); // skip the first line containing header information
+        while ((next = r.readLine()) != null)
+            repository_list.add(next);
+        return repository_list;
+    }
+
+    public List<String> readJson(BufferedReader r) throws Exception {
+        // r.readLine(); // skip the first line containing header information
+        String json_list = r.readLine();
+        System.out.println(json_list);
+        ObjectMapper o = new ObjectMapper();
+        repository_list = o.readValue(json_list, new TypeReference<ArrayList<String>>() {
+        });
+        if ((next = r.readLine()) != null)
+            throw new Exception("Too many lines");
+        return repository_list;
     }
 
     /**
@@ -48,10 +78,22 @@ public class SchemaServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // setCommonHeaders()
+        setCommonHeaders(response);
+        response.setContentType("text/html");
 
         // Create HTML response with a redirect link to the PASS schema service
         // documentation
+        PrintWriter out = response.getWriter();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        out.println("<html>");
+        out.println("<body><p>");
+        out.println("See the PASS schema service");
+        out.println(
+                "<a href=\"https://docs.google.com/document/d/1sLWGZR4kCvQVGv-TA5x8ny-AxL3ChBYNeFYW1eACsDw/edit\">documentation</a>");
+        out.println("</p></body>");
+        out.println("</html>");
+        out.flush();
 
     }
 
@@ -64,13 +106,39 @@ public class SchemaServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // setCommonHeaders()
+        setCommonHeaders(response);
 
         // Create SchemaService instance to handle business logic
         BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
 
-        // Encode resulting schema(s) into a JSON response object
+        if (request.getContentType() == "text/plain")
+            repository_list = readText(br);
+        else {
+            try {
+                repository_list = readJson(br);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
 
+        SchemaService s = new SchemaService(repository_list);
+
+        JsonNode mergedSchema;
+        try {
+            mergedSchema = s.getMergedSchema();
+            // Encode resulting schema(s) into a JSON response object
+            ObjectMapper m = new ObjectMapper();
+            String jsonResponse = m.writeValueAsString(mergedSchema);
+            PrintWriter out = response.getWriter();
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            out.print(jsonResponse);
+            out.flush();
+        } catch (URISyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -79,8 +147,9 @@ public class SchemaServlet extends HttpServlet {
      * @param request
      * @param response
      */
-    private void setCommonHeaders(HttpServletRequest request, HttpServletResponse response) {
-        // TODO: Not implemented yet
+    private void setCommonHeaders(HttpServletResponse response) {
+        response.setHeader("Accept-Post", "application/json, text/plain");
+        response.setHeader("Server", "PASS schema service");
     }
 
 }
