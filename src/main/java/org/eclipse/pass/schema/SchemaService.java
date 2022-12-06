@@ -18,10 +18,9 @@ package org.eclipse.pass.schema;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.dataconservancy.pass.client.PassClient;
 import org.dataconservancy.pass.client.PassClientFactory;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * The SchemaService class handles the business logic of the metadata schema

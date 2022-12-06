@@ -50,8 +50,9 @@ public class SchemaMerger {
         for (JsonNode schema : schemasToMerge) {
             Iterator<String> fieldnames = schema.fieldNames();
             fieldnames.forEachRemaining(f -> {
-                if (!Arrays.asList(ignorable).contains(f))
+                if (!Arrays.asList(ignorable).contains(f)) {
                     mergeIn(f, schema.get(f), merged);
+                }
             });
         }
         return merged;

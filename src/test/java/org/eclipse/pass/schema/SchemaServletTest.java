@@ -19,7 +19,7 @@ class SchemaServletTest {
         String text_list = "http://example.org/foo1" + "\nhttp://example.org/bar1" + "\nhttp://example.org/foo2"
                 + "\nhttp://example.org/bar2";
         List<String> expected = Arrays.asList(new String[] { "http://example.org/foo1", "http://example.org/bar1",
-                "http://example.org/foo2", "http://example.org/bar2" });
+            "http://example.org/foo2", "http://example.org/bar2" });
         Reader text_string = new StringReader(text_list);
         BufferedReader text_bufferedReader = new BufferedReader(text_string);
         assertEquals(expected, s.readText(text_bufferedReader));

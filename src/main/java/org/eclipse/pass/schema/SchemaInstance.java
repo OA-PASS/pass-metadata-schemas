@@ -70,10 +70,11 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
         int this_properties = countFormProperties();
         int s_properties = s.countFormProperties();
 
-        if (this_properties > s_properties)
+        if (this_properties > s_properties) {
             return -1;
-        else if (this_properties < s_properties)
+        } else if (this_properties < s_properties) {
             return 1;
+        }
         return 0;
     }
 
@@ -117,7 +118,7 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
             String stringval;
             if (value.isValueNode()) {
                 if (k.equals(keyRef)) { // only do this if url is not null?
-                    path = pointer.concat("/").concat(k);
+                    path = pointer + "/" + k;
                     stringval = value.asText();
                     if (stringval.charAt(0) == '#') {
                         ((ObjectNode) schema).replace(path.split("/")[1],
@@ -134,8 +135,9 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
                         }
                     }
                 }
-            } else if (value.isObject())
-                dereference(value, pointer.concat("/").concat(k));
+            } else if (value.isObject()) {
+                dereference(value, pointer + "/" + k);
+            }
         });
     }
 
@@ -149,8 +151,9 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
     private void findDeps() {
         refs.forEach((path, ref) -> {
             String schema = ref.split("#")[0];
-            if (!schema.equals("")) // only add refs to other schemas; not to itself
+            if (!schema.equals("")) { // only add refs to other schemas; not to itself
                 deps.put(path, ref);
+            }
         });
         orderedDeps.put(schema_name, deps.values());
     }
