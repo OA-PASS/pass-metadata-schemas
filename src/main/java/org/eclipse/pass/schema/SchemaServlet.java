@@ -22,7 +22,6 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -51,22 +50,23 @@ public class SchemaServlet extends HttpServlet {
         repository_list = new ArrayList<String>();
     }
 
-    public List<String> readText(BufferedReader r) throws IOException {
+    protected List<String> readText(BufferedReader r) throws IOException {
         // r.readLine(); // skip the first line containing header information
-        while ((next = r.readLine()) != null)
+        while ((next = r.readLine()) != null) {
             repository_list.add(next);
+        }
         return repository_list;
     }
 
-    public List<String> readJson(BufferedReader r) throws Exception {
+    protected List<String> readJson(BufferedReader r) throws Exception {
         // r.readLine(); // skip the first line containing header information
         String json_list = r.readLine();
-        System.out.println(json_list);
         ObjectMapper o = new ObjectMapper();
         repository_list = o.readValue(json_list, new TypeReference<ArrayList<String>>() {
         });
-        if ((next = r.readLine()) != null)
+        if ((next = r.readLine()) != null) {
             throw new Exception("Too many lines");
+        }
         return repository_list;
     }
 
@@ -111,9 +111,9 @@ public class SchemaServlet extends HttpServlet {
         // Create SchemaService instance to handle business logic
         BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
 
-        if (request.getContentType() == "text/plain")
+        if (request.getContentType() == "text/plain") {
             repository_list = readText(br);
-        else {
+        } else {
             try {
                 repository_list = readJson(br);
             } catch (Exception e) {

@@ -1,6 +1,18 @@
-/*Copyright 2022 Johns Hopkins University**Licensed under the Apache License,Version 2.0(the"License");*you may not use this file except in compliance with the License.*You may obtain a copy of the License at**http://www.apache.org/licenses/LICENSE-2.0
-**Unless required by applicable law or agreed to in writing,software*distributed under the License is distributed on an"AS IS"BASIS,*WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,either express or implied.*See the License for the specific language governing permissions and*limitations under the License.*/
-
+/*
+ * Copyright 2022 Johns Hopkins University
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.eclipse.pass.schema;
 
 import java.io.IOException;
@@ -10,13 +22,12 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dataconservancy.pass.client.PassClient;
-import org.dataconservancy.pass.model.Repository;
-
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dataconservancy.pass.client.PassClient;
+import org.dataconservancy.pass.model.Repository;
 
 /**
  * Fetches the schemas from a list of repository URIs and creates a
@@ -45,8 +56,9 @@ public class SchemaFetcher {
             // add the schemas from that repository to the list of all schemas required
             List<JsonNode> repository_schemas = getRepositorySchemas(repository_uri);
             for (JsonNode schema : repository_schemas) {
-                if (!repository_schemas.contains(schema)) // only add schemas that are not already in list
+                if (!repository_schemas.contains(schema)) { // only add schemas that are not already in list
                     repository_schemas.add(schema);
+                }
             }
         }
 
