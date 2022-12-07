@@ -17,22 +17,28 @@ package org.eclipse.pass.schema;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class SchemaMergerTest {
 
+    private SchemaMerger merger;
+    private ObjectMapper map;
+
+    @BeforeEach
+    void setup() {
+        map = new ObjectMapper();
+    }
+
     @Test
-    void simpleIgnorePreamble() throws JsonMappingException, JsonProcessingException {
+    void simpleIgnorePreamble() throws Exception {
         String schema1 = "{\r\n" + "            \"$schema\": \"http://example.org/schema\",\r\n"
                 + "            \"$id\": \"http://example.org/foo\",\r\n" + "            \"title\": \"foo\",\r\n"
                 + "            \"description\": \"foo schema\",\r\n" + "            \"$comment\": \"one\",\r\n"
@@ -42,19 +48,18 @@ class SchemaMergerTest {
                 + "            \"description\": \"bar schema\",\r\n" + "            \"$comment\": \"two\",\r\n"
                 + "            \"b\": \"2\"\r\n" + "        }";
         String expected_json = "{\r\n" + "            \"a\": \"1\",\r\n" + "            \"b\": \"2\"\r\n" + "        }";
-        ObjectMapper map = new ObjectMapper();
         JsonNode schema_one = map.readTree(schema1);
         JsonNode schema_two = map.readTree(schema2);
         JsonNode expected = map.readTree(expected_json);
 
         List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two));
-        SchemaMerger merger = new SchemaMerger(toMerge);
+        merger = new SchemaMerger(toMerge);
         JsonNode result = merger.mergeSchemas();
         assertEquals(result, expected);
     }
 
     @Test
-    void ignorableConflicts() throws JsonMappingException, JsonProcessingException {
+    void ignorableConflicts() throws Exception {
         String schema1 = "{\r\n" + "            \"a\": {\r\n" + "                \"title\": \"A\",\r\n"
                 + "                \"description\": \"a letter\",\r\n"
                 + "                \"$comment\": \"displays good\",\r\n" + "                \"type\": \"letter\"\r\n"
@@ -67,57 +72,54 @@ class SchemaMergerTest {
                 + "                \"$comment\": \"displays nicely\",\r\n"
                 + "                \"description\": \"an awesome letter\",\r\n"
                 + "                \"type\": \"letter\"\r\n" + "            }\r\n" + "        }";
-        ObjectMapper map = new ObjectMapper();
         JsonNode schema_one = map.readTree(schema1);
         JsonNode schema_two = map.readTree(schema2);
         JsonNode expected = map.readTree(expected_json);
 
         List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two));
-        SchemaMerger merger = new SchemaMerger(toMerge);
+        merger = new SchemaMerger(toMerge);
         JsonNode result = merger.mergeSchemas();
         assertEquals(expected, result);
     }
 
     @Test
-    void simpleArrayDeduplication() throws JsonMappingException, JsonProcessingException {
+    void simpleArrayDeduplication() throws Exception {
         String schema1 = "{\r\n" + "            \"array\": [\"a\", \"b\", \"c\"]\r\n" + "        }";
         String schema2 = "{\r\n" + "            \"array\": [\"b\", \"c\", \"d\"]\r\n" + "        }";
         String schema3 = "{\r\n" + "            \"array\": [\"c\", \"d\", \"e\"]\r\n" + "        }";
         String expected_json = "{\r\n" + "            \"array\": [\"a\", \"b\", \"c\", \"d\", \"e\"]\r\n" + "        }";
-        ObjectMapper map = new ObjectMapper();
         JsonNode schema_one = map.readTree(schema1);
         JsonNode schema_two = map.readTree(schema2);
         JsonNode schema_three = map.readTree(schema3);
         JsonNode expected = map.readTree(expected_json);
 
         List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two, schema_three));
-        SchemaMerger merger = new SchemaMerger(toMerge);
+        merger = new SchemaMerger(toMerge);
         JsonNode result = merger.mergeSchemas();
         assertEquals(expected, result);
     }
 
     @Test
-    void complexArrayDeduplication() throws JsonMappingException, JsonProcessingException {
+    void complexArrayDeduplication() throws Exception {
         String schema1 = "{\r\n" + "            \"array\": [{\"a\": [\"b\", {\"c\": \"d\"}]}, \"e\"]\r\n" + "        }";
         String schema2 = "{\r\n" + "            \"array\": [{\"a\": [\"b\", {\"c\": \"d\"}]}, \"f\"]\r\n" + "        }";
         String schema3 = "{\r\n" + "            \"array\": [\"e\", \"f\", {\"g\": \"h\"}]\r\n" + "        }";
         String expected_json = "{\r\n"
                 + "            \"array\": [{\"a\": [\"b\", {\"c\": \"d\"}]}, \"e\", \"f\", {\"g\": \"h\"}]\r\n"
                 + "        }";
-        ObjectMapper map = new ObjectMapper();
         JsonNode schema_one = map.readTree(schema1);
         JsonNode schema_two = map.readTree(schema2);
         JsonNode schema_three = map.readTree(schema3);
         JsonNode expected = map.readTree(expected_json);
 
         List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two, schema_three));
-        SchemaMerger merger = new SchemaMerger(toMerge);
+        merger = new SchemaMerger(toMerge);
         JsonNode result = merger.mergeSchemas();
         assertEquals(expected, result);
     }
 
     @Test
-    void objectMerge() throws JsonMappingException, JsonProcessingException {
+    void objectMerge() throws Exception {
         String schema1 = "{\r\n" + "            \"a\": \"b\",\r\n" + "            \"c\": [\"d\", \"e\"]\r\n"
                 + "        }";
         String schema2 = "{\r\n" + "            \"a\": \"b\",\r\n" + "            \"c\": [\"e\", \"f\", \"g\"]\r\n"
@@ -133,7 +135,6 @@ class SchemaMergerTest {
                 + "                \"i\": \"j\",\r\n" + "                \"k\": [\"l\", \"m\", \"m'\"],\r\n"
                 + "                \"n\": {\r\n" + "                    \"o\": \"p\",\r\n"
                 + "                    \"q\": \"r\"\r\n" + "                }\r\n" + "            }\r\n" + "        }";
-        ObjectMapper map = new ObjectMapper();
         JsonNode schema_one = map.readTree(schema1);
         JsonNode schema_two = map.readTree(schema2);
         JsonNode schema_three = map.readTree(schema3);
@@ -142,21 +143,19 @@ class SchemaMergerTest {
 
         List<JsonNode> toMerge = new ArrayList<JsonNode>(
                 Arrays.asList(schema_one, schema_two, schema_three, schema_four));
-        SchemaMerger merger = new SchemaMerger(toMerge);
+        merger = new SchemaMerger(toMerge);
         JsonNode result = merger.mergeSchemas();
         assertEquals(expected, result);
     }
 
     @Test
-    void testMergerFull() throws IOException {
+    void testMergerFull() throws Exception {
         InputStream schema1 = SchemaMergerTest.class.getResourceAsStream("/example/schemas/schema1.json");
         InputStream schema2 = SchemaMergerTest.class.getResourceAsStream("/example/schemas/schema2.json");
         InputStream schema3 = SchemaMergerTest.class.getResourceAsStream("/example/schemas/schema3.json");
         InputStream schema4 = SchemaMergerTest.class.getResourceAsStream("/example/schemas/schema4.json");
         InputStream expected_json = SchemaMergerTest.class
                 .getResourceAsStream("/example/schemas/example_merged_basic.json");
-
-        ObjectMapper map = new ObjectMapper();
         JsonNode schema_one = map.readTree(schema1);
         JsonNode schema_two = map.readTree(schema2);
         JsonNode schema_three = map.readTree(schema3);
@@ -165,7 +164,7 @@ class SchemaMergerTest {
 
         List<JsonNode> toMerge = new ArrayList<JsonNode>(
                 Arrays.asList(schema_one, schema_two, schema_three, schema_four));
-        SchemaMerger merger = new SchemaMerger(toMerge);
+        merger = new SchemaMerger(toMerge);
         JsonNode result = merger.mergeSchemas();
         assertEquals(expected, result);
     }

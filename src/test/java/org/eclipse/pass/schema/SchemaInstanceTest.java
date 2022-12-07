@@ -24,14 +24,20 @@ import java.util.Collections;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class SchemaInstanceTest {
 
-    @SuppressWarnings("unchecked")
+    private ObjectMapper map;
+
+    @BeforeEach
+    void setup() {
+        map = new ObjectMapper();
+    }
+
     // @Test
     void testSort() throws JsonMappingException, JsonProcessingException {
-        ObjectMapper map = new ObjectMapper();
         String one = "{\r\n" + "        \"$id\": \"http://example.org/schemas/one.json\",\r\n"
                 + "        \"definitions\": {\r\n" + "            \"form\": {\r\n"
                 + "                \"properties\": {\r\n" + "                    \"foo\": \"bar\"\r\n"
@@ -86,15 +92,11 @@ class SchemaInstanceTest {
         ArrayList<SchemaInstance> expected = new ArrayList<SchemaInstance>(Arrays.asList(schema_one, schema_two,
                 schema_three, schema_four, schema_five, schema_six, schema_seven));
         Collections.sort(toSort);
-        toSort.forEach(str -> {
-            System.out.println(str.getName());
-        });
         assertEquals(toSort, expected);
     }
 
     @Test
     void dereferenceTest() throws JsonMappingException, JsonProcessingException {
-        ObjectMapper map = new ObjectMapper();
         String example_schema_json = "{\r\n" + "  \"$schema\": \"http://example.org/schema_to_dereference\",\r\n"
                 + "  \"$id\": \"https://example.org/example/schemas/deref\",\r\n"
                 + "  \"copySchemaName\": {\"$ref\": \"#/$schema\"},\r\n"
