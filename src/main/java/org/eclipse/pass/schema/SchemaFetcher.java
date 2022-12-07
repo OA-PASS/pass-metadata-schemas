@@ -56,12 +56,11 @@ public class SchemaFetcher {
             // add the schemas from that repository to the list of all schemas required
             List<JsonNode> repository_schemas = getRepositorySchemas(repository_uri);
             for (JsonNode schema : repository_schemas) {
-                if (!repository_schemas.contains(schema)) { // only add schemas that are not already in list
-                    repository_schemas.add(schema);
+                if (!schemas.contains(schema)) { // only add schemas that are not already in list
+                    schemas.add(schema);
                 }
             }
         }
-
         // dereference each of the schemas
         for (int i = 0; i < schemas.size(); i++) {
             SchemaInstance s = new SchemaInstance(schemas.get(i)); // needs to be reviewed after decision is made re.

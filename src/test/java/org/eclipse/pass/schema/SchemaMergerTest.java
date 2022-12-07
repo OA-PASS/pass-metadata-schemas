@@ -149,11 +149,12 @@ class SchemaMergerTest {
 
     @Test
     void testMergerFull() throws IOException {
-        InputStream schema1 = SchemaMergerTest.class.getResourceAsStream("/example_schemas/schema1.json");
-        InputStream schema2 = SchemaMergerTest.class.getResourceAsStream("/example_schemas/schema2.json");
-        InputStream schema3 = SchemaMergerTest.class.getResourceAsStream("/example_schemas/schema3.json");
-        InputStream schema4 = SchemaMergerTest.class.getResourceAsStream("/example_schemas/schema4.json");
-        InputStream expected_json = SchemaMergerTest.class.getResourceAsStream("/example_schemas/example_merged.json");
+        InputStream schema1 = SchemaMergerTest.class.getResourceAsStream("/example/schemas/schema1.json");
+        InputStream schema2 = SchemaMergerTest.class.getResourceAsStream("/example/schemas/schema2.json");
+        InputStream schema3 = SchemaMergerTest.class.getResourceAsStream("/example/schemas/schema3.json");
+        InputStream schema4 = SchemaMergerTest.class.getResourceAsStream("/example/schemas/schema4.json");
+        InputStream expected_json = SchemaMergerTest.class
+                .getResourceAsStream("/example/schemas/example_merged_basic.json");
 
         ObjectMapper map = new ObjectMapper();
         JsonNode schema_one = map.readTree(schema1);
