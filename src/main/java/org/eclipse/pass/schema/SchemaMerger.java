@@ -16,8 +16,10 @@
 package org.eclipse.pass.schema;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +33,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class SchemaMerger {
 
     private ObjectNode merged;
-    private String[] ignorable = { "title", "description", "$id", "$schema", "$comment" };
+    private Set<String> ignorable = new HashSet<>(Arrays.asList("title", "description", "$id", "$schema", "$comment"));
     private List<JsonNode> schemasToMerge;
 
     public SchemaMerger(List<JsonNode> repository_schemas) {
@@ -50,7 +52,7 @@ public class SchemaMerger {
         for (JsonNode schema : schemasToMerge) {
             Iterator<String> fieldnames = schema.fieldNames();
             fieldnames.forEachRemaining(f -> {
-                if (!Arrays.asList(ignorable).contains(f)) {
+                if (!ignorable.contains(f)) {
                     mergeIn(f, schema.get(f), merged);
                 }
             });

@@ -71,33 +71,6 @@ public class SchemaServlet extends HttpServlet {
     }
 
     /**
-     * Handle GET requests by sending a HTML response back to the client, providing
-     * a link to the PASS schema service documentation.
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        setCommonHeaders(response);
-        response.setContentType("text/html");
-
-        // Create HTML response with a redirect link to the PASS schema service
-        // documentation
-        PrintWriter out = response.getWriter();
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        out.println("<html>");
-        out.println("<body><p>");
-        out.println("See the PASS schema service");
-        out.println(
-                "<a href=\"https://docs.google.com/document/d/1sLWGZR4kCvQVGv-TA5x8ny-AxL3ChBYNeFYW1eACsDw/edit\">documentation</a>");
-        out.println("</p></body>");
-        out.println("</html>");
-        out.flush();
-
-    }
-
-    /**
      * Handle POST requests by invoking the SchemaService to handle the business
      * logic of generating a merged schema from the list of relevant repository
      * schemas to a PASS submission

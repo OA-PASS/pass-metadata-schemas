@@ -3,17 +3,11 @@ package org.eclipse.pass.schema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dataconservancy.pass.client.PassClient;
@@ -27,17 +21,20 @@ class SchemaFetcherTest {
     private PassClient passClientMock;
     private Repository repository1mock;
     private Repository repository2mock;
+    private SchemaFetcher s;
+    private ObjectMapper map;
 
     @BeforeEach
     void setup() {
         passClientMock = Mockito.mock(PassClient.class);
         repository1mock = Mockito.mock(Repository.class);
         repository2mock = Mockito.mock(Repository.class);
+        s = new SchemaFetcher(passClientMock);
+        map = new ObjectMapper();
     }
 
     @Test
-    void getSchemaFromUriTest() throws StreamReadException, DatabindException, IOException, URISyntaxException {
-        SchemaFetcher s = new SchemaFetcher(passClientMock);
+    void getSchemaFromUriTest() throws Exception {
         URI uri = new URI("https://example.com/pass-metadata-schemas/example/schemas/schema1.json");
         String expectedJsonString = "{\r\n" + "    \"$schema\": \"http://example.org/example/schemas/schema\",\r\n"
                 + "    \"$id\": \"http://example.org/example/schemas/foo\",\r\n" + "    \"title\": \"foo\",\r\n"
@@ -46,13 +43,12 @@ class SchemaFetcherTest {
                 + "        \"description\": \"a letter\",\r\n" + "        \"$comment\": \"displays good\",\r\n"
                 + "        \"type\": \"letter\"\r\n" + "    },\r\n" + "    \"array\": [\"a\", \"b\", \"c\"],\r\n"
                 + "    \"aa\": \"b\",\r\n" + "    \"cc\": [\"d\", \"e\"]\r\n" + "}";
-        ObjectMapper map = new ObjectMapper();
         JsonNode expected = map.readTree(expectedJsonString);
         assertEquals(expected, s.getSchemaFromUri(uri));
     }
 
     @Test
-    void getRepositorySchemasTest() throws StreamReadException, DatabindException, IOException, URISyntaxException {
+    void getRepositorySchemasTest() throws Exception {
         when(passClientMock.findByAttribute(Repository.class, "@id", new URI("repository1")))
                 .thenReturn(new URI("uri_to_repository1"));
         when(passClientMock.findByAttribute(Repository.class, "@id", new URI("repository2")))
@@ -65,7 +61,6 @@ class SchemaFetcherTest {
                 new URI("/example/schemas/schema3.json"), new URI("/example/schemas/schema_to_deref.json"));
         when(repository1mock.getSchemas()).thenReturn(r1_schemas_list);
         when(repository2mock.getSchemas()).thenReturn(r2_schemas_list);
-        SchemaFetcher s = new SchemaFetcher(passClientMock);
         String expectedJsonSchema1 = "{\r\n" + "    \"$schema\": \"http://example.org/example/schemas/schema\",\r\n"
                 + "    \"$id\": \"http://example.org/example/schemas/foo\",\r\n" + "    \"title\": \"foo\",\r\n"
                 + "    \"description\": \"foo schema\",\r\n" + "    \"$comment\": \"one\",\r\n"
@@ -84,7 +79,6 @@ class SchemaFetcherTest {
                 + "    \"complexarray\": [{\"a\": [\"b\", {\"c\": \"d\"}]}, \"e\"],\r\n" + "    \"aa\": \"b\",\r\n"
                 + "    \"cc\": [\"e\", \"f\", \"g\"]\r\n" + "}";
 
-        ObjectMapper map = new ObjectMapper();
         JsonNode expectedschema1 = map.readTree(expectedJsonSchema1);
         JsonNode expectedschema2 = map.readTree(expectedJsonSchema2);
         List<JsonNode> expected = new ArrayList<JsonNode>(Arrays.asList(expectedschema1, expectedschema2));
@@ -93,8 +87,7 @@ class SchemaFetcherTest {
     }
 
     @Test
-    void getSchemasTest() throws JsonMappingException, JsonProcessingException, URISyntaxException {
-        SchemaFetcher s = new SchemaFetcher(passClientMock);
+    void getSchemasTest() throws Exception {
         List<String> repository_uris = new ArrayList<String>(Arrays.asList("repository1", "repository2"));
         when(passClientMock.findByAttribute(Repository.class, "@id", new URI("repository1")))
                 .thenReturn(new URI("uri_to_repository1"));
@@ -154,7 +147,6 @@ class SchemaFetcherTest {
                 + "  \"schema4_complexarray\": [\"e\", \"f\", {\"g\": \"h\"}],\r\n"
                 + "  \"schema4_hk\": [\"l\", \"m\", \"m'\"]\r\n" + "}";
 
-        ObjectMapper map = new ObjectMapper();
         JsonNode expectedschema1 = map.readTree(expectedJsonSchema1);
         JsonNode expectedschema2 = map.readTree(expectedJsonSchema2);
         JsonNode expectedschema3 = map.readTree(expectedJsonSchema3);
