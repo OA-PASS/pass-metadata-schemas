@@ -34,7 +34,8 @@ class SchemaServiceTest {
     @Test
     void getMergedSchemaTest() throws Exception {
         List<String> repository_uris = new ArrayList<String>(Arrays.asList("repository1", "repository2"));
-        s = new SchemaService(repository_uris, passClientMock);
+        s = new SchemaService(passClientMock);
+        s.setRepositoryList(repository_uris);
         when(passClientMock.findByAttribute(Repository.class, "@id", new URI("repository1")))
                 .thenReturn(new URI("uri_to_repository1"));
         when(passClientMock.findByAttribute(Repository.class, "@id", new URI("repository2")))
