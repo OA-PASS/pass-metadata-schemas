@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.dataconservancy.pass.client.PassClient;
+import org.dataconservancy.pass.client.PassClientFactory;
 
 /**
  * Servlet implementation class SchemaServlet This class handles the web request
@@ -42,11 +44,19 @@ public class SchemaServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private List<String> repository_list;
     private String next;
+    private PassClient client;
 
     /**
      * Servlet constructor.
      */
     public SchemaServlet() {
+        client = PassClientFactory.getPassClient();
+        repository_list = new ArrayList<String>();
+    }
+
+    // used for unit testing to insert a mock client
+    public SchemaServlet(PassClient client) {
+        this.client = client;
         repository_list = new ArrayList<String>();
     }
 
@@ -79,7 +89,8 @@ public class SchemaServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        setCommonHeaders(response);
+        response.setHeader("Accept-Post", "application/json, text/plain");
+        response.setHeader("Server", "PASS schema service");
 
         // Create SchemaService instance to handle business logic
         BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));
@@ -95,7 +106,8 @@ public class SchemaServlet extends HttpServlet {
             }
         }
 
-        SchemaService s = new SchemaService(repository_list);
+        SchemaService s = new SchemaService(client);
+        s.setRepositoryList(repository_list);
 
         JsonNode mergedSchema;
         try {
@@ -112,17 +124,6 @@ public class SchemaServlet extends HttpServlet {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Sets standard headers that are common to both GET and POST responses
-     *
-     * @param request
-     * @param response
-     */
-    private void setCommonHeaders(HttpServletResponse response) {
-        response.setHeader("Accept-Post", "application/json, text/plain");
-        response.setHeader("Server", "PASS schema service");
     }
 
 }

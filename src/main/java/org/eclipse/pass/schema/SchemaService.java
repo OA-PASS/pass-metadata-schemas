@@ -33,14 +33,12 @@ public class SchemaService {
     private List<String> repository_list;
     private String next;
 
-    public SchemaService(List<String> repository_list) {
-        this.repository_list = repository_list;
+    public SchemaService() {
         client = PassClientFactory.getPassClient();
     }
 
     // Used in unit tests for inserting a mock client
-    public SchemaService(List<String> repository_list, PassClient client) {
-        this.repository_list = repository_list;
+    public SchemaService(PassClient client) {
         this.client = client;
     }
 
@@ -64,6 +62,10 @@ public class SchemaService {
         // If the merge fails, return individual schemas
 
         return mergedSchema;
+    }
+
+    public void setRepositoryList(List<String> repository_list) {
+        this.repository_list = repository_list;
     }
 
 }
