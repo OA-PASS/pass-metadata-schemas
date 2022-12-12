@@ -48,20 +48,30 @@ public class SchemaService {
      * @param repositoryUris List of repository URIs containing schemas to be merged
      * @return JsonSchema merged schema
      * @throws URISyntaxException
+     * @throws FetchFailException
      */
-    JsonNode getMergedSchema() throws URISyntaxException {
+    JsonNode getMergedSchema() throws FetchFailException, MergeFailException {
 
         // Create a SchemaFetcher instance to get the schemas from the repository URIs
         SchemaFetcher f = new SchemaFetcher(client);
-        List<JsonNode> repository_schemas = f.getSchemas(repository_list);
+        List<JsonNode> repository_schemas;
+        try {
+            repository_schemas = f.getSchemas(repository_list);
+        } catch (FetchFailException e) {
+            throw new FetchFailException(e.getMessage());
+        }
         SchemaMerger m = new SchemaMerger(repository_schemas);
-        JsonNode mergedSchema = m.mergeSchemas();
-
-        // (By default, schemas should be merged)
-        // Create a SchemaMerger instance to merge the schemas returned by SchemaFetcher
-        // If the merge fails, return individual schemas
+        JsonNode mergedSchema;
+        mergedSchema = m.mergeSchemas();
 
         return mergedSchema;
+    }
+
+    List<JsonNode> getIndividualSchemas() throws FetchFailException {
+        SchemaFetcher f = new SchemaFetcher(client);
+        List<JsonNode> repository_schemas;
+        repository_schemas = f.getSchemas(repository_list);
+        return repository_schemas;
     }
 
     public void setRepositoryList(List<String> repository_list) {

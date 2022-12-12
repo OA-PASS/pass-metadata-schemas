@@ -1,8 +1,8 @@
 package org.eclipse.pass.schema;
 
-public class MergeFailException extends Exception {
-    public MergeFailException(String errorMessage, Throwable err) {
-        super(errorMessage, err);
+public class MergeFailException extends RuntimeException {
+    public MergeFailException(String errorMessage) {
+        super(errorMessage);
     }
 
 }

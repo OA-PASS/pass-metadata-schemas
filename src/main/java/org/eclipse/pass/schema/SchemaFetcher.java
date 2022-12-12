@@ -46,15 +46,20 @@ public class SchemaFetcher {
      *
      * @return List<SchemaInstance> ArrayList of relevant SchemaInstance objects
      * @throws URISyntaxException
+     * @throws FetchFailException
      */
-    List<JsonNode> getSchemas(List<String> repository_uris) throws URISyntaxException {
+    List<JsonNode> getSchemas(List<String> repository_uris) throws FetchFailException {
 
         List<JsonNode> schemas = new ArrayList<JsonNode>();
 
         // for each repository:
         for (String repository_uri : repository_uris) {
+
+            /****** check for validity of the repository URI **********/
+
             // add the schemas from that repository to the list of all schemas required
-            List<JsonNode> repository_schemas = getRepositorySchemas(repository_uri);
+            List<JsonNode> repository_schemas;
+            repository_schemas = getRepositorySchemas(repository_uri);
             for (JsonNode schema : repository_schemas) {
                 if (!schemas.contains(schema)) { // only add schemas that are not already in list
                     schemas.add(schema);
@@ -63,8 +68,7 @@ public class SchemaFetcher {
         }
         // dereference each of the schemas
         for (int i = 0; i < schemas.size(); i++) {
-            SchemaInstance s = new SchemaInstance(schemas.get(i)); // needs to be reviewed after decision is made re.
-                                                                   // sorting
+            SchemaInstance s = new SchemaInstance(schemas.get(i));
             s.dereference(schemas.get(i), "");
             schemas.set(i, s.getSchema());
         }
@@ -77,22 +81,31 @@ public class SchemaFetcher {
      * SchemaInstance objects
      *
      * @return List<SchemaInstance> schemas from the repository
+     * @throws FetchFailException
+     * @throws IOException
      * @throws URISyntaxException
      */
-    List<JsonNode> getRepositorySchemas(String repositoryUri) throws URISyntaxException {
-
-        URI uri_r1 = client.findByAttribute(Repository.class, "@id", new URI(repositoryUri));
-        Repository r1 = client.readResource(uri_r1, Repository.class);
+    List<JsonNode> getRepositorySchemas(String repository_uri) throws FetchFailException {
+        URI uri_r1;
+        Repository r1 = null;
         List<JsonNode> repository_schemas = new ArrayList<JsonNode>();
-
         try {
-            List<URI> schema_uris = r1.getSchemas();
-            for (URI schema_uri : schema_uris) {
+            uri_r1 = client.findByAttribute(Repository.class, "@id", new URI(repository_uri));
+        } catch (URISyntaxException e1) {
+            throw new FetchFailException("Invalid URI syntax: " + repository_uri);
+        }
+        r1 = client.readResource(uri_r1, Repository.class);
+        if (r1 == null) {
+            throw new FetchFailException("Invalid repository URI: " + repository_uri);
+        }
+
+        List<URI> schema_uris = r1.getSchemas();
+        for (URI schema_uri : schema_uris) {
+            try {
                 repository_schemas.add(getSchemaFromUri(schema_uri));
+            } catch (IOException | IllegalArgumentException e) {
+                throw new FetchFailException("Could not read schema at the following URI: " + schema_uri);
             }
-        } catch (Exception e) { // *** Note: stub with more specific errors was generated here; removing
-            // for simplicity until error handling decision is made ***
-            e.printStackTrace();
         }
 
         return repository_schemas;
@@ -106,7 +119,7 @@ public class SchemaFetcher {
      * @throws DatabindException
      * @throws StreamReadException
      */
-    JsonNode getSchemaFromUri(URI schema_uri) throws StreamReadException, DatabindException, IOException {
+    JsonNode getSchemaFromUri(URI schema_uri) throws IOException, IllegalArgumentException {
 
         // Given the schema's $id url, go to the corresponding local json file
         // by loading it as a resource stream based on the last 2 parts of the $id
@@ -114,18 +127,15 @@ public class SchemaFetcher {
         String path = schema_uri.getPath();
         String[] path_segments = path.split("/pass-metadata-schemas");
         String path_to_schema = path_segments[path_segments.length - 1];
-        JsonNode schema = getLocalSchema(path_to_schema);
+        JsonNode schema = null;
+        schema = getLocalSchema(path_to_schema);
         return schema;
     }
 
-    public static JsonNode getLocalSchema(String path) throws IOException {
+    public static JsonNode getLocalSchema(String path) throws IOException, IllegalArgumentException {
         InputStream schema_json = SchemaFetcher.class.getResourceAsStream(path);
-        if (schema_json == null) {
-            System.out.println("File not found: " + path);
-        }
         ObjectMapper objmapper = new ObjectMapper();
         JsonNode schema_obj = objmapper.readTree(schema_json);
         return schema_obj;
     }
-
 }
