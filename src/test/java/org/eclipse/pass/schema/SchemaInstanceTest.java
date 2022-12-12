@@ -36,7 +36,15 @@ class SchemaInstanceTest {
         map = new ObjectMapper();
     }
 
-    // @Test
+    /*
+     * Sort schemas based on the following rules: If one schema is referenced by
+     * another in a $ref, then that schema appears before the other For schemas that
+     * are independent of one another, the one with the greatest number of form
+     * properties appears before those that have fewer. If two schemas have no
+     * dependencies and have the same number of properties, the one that appears
+     * first in the initial list will be first in the result.
+     */
+    @Test
     void testSort() throws JsonMappingException, JsonProcessingException {
         String one = "{\r\n" + "        \"$id\": \"http://example.org/schemas/one.json\",\r\n"
                 + "        \"definitions\": {\r\n" + "            \"form\": {\r\n"
@@ -56,8 +64,8 @@ class SchemaInstanceTest {
                 + "                \"properties\": {\r\n"
                 + "                    \"foo\": {\"$ref\": \"one.json#/definitions/form/properties/foo\"},\r\n"
                 + "                    \"bar\": {\"$ref\": \"two.json#/definitions/form/properties/foo\"},\r\n"
-                + "                    \"baz\": \"value\"\r\n" + "                }\r\n" + "            }\r\n"
-                + "        }\r\n" + "    }";
+                + "                    \"baz0\": \"value0\",\r\n" + "                    \"baz\": \"value\"\r\n"
+                + "                }\r\n" + "            }\r\n" + "        }\r\n" + "    }";
 
         String four = "{\r\n" + "        \"$id\": \"http://example.org/schemas/four.json\",\r\n"
                 + "        \"definitions\": {\r\n" + "            \"form\": {\r\n"
@@ -87,10 +95,12 @@ class SchemaInstanceTest {
         SchemaInstance schema_five = new SchemaInstance(map.readTree(five));
         SchemaInstance schema_six = new SchemaInstance(map.readTree(six));
         SchemaInstance schema_seven = new SchemaInstance(map.readTree(seven));
+
         ArrayList<SchemaInstance> toSort = new ArrayList<SchemaInstance>(Arrays.asList(schema_five, schema_two,
                 schema_seven, schema_one, schema_six, schema_three, schema_four));
         ArrayList<SchemaInstance> expected = new ArrayList<SchemaInstance>(Arrays.asList(schema_one, schema_two,
                 schema_three, schema_four, schema_five, schema_six, schema_seven));
+
         Collections.sort(toSort);
         assertEquals(toSort, expected);
     }
@@ -119,4 +129,5 @@ class SchemaInstanceTest {
         testSchema.dereference(testSchema.getSchema(), "");
         assertEquals(expectedSchema.getSchema(), testSchema.getSchema());
     }
+
 }
