@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
@@ -51,12 +52,10 @@ public class SchemaFetcher {
     List<JsonNode> getSchemas(List<String> repository_uris) throws FetchFailException {
 
         List<JsonNode> schemas = new ArrayList<JsonNode>();
+        List<SchemaInstance> schema_instances = new ArrayList<SchemaInstance>();
 
         // for each repository:
         for (String repository_uri : repository_uris) {
-
-            /****** check for validity of the repository URI **********/
-
             // add the schemas from that repository to the list of all schemas required
             List<JsonNode> repository_schemas;
             repository_schemas = getRepositorySchemas(repository_uri);
@@ -69,8 +68,15 @@ public class SchemaFetcher {
         // dereference each of the schemas
         for (int i = 0; i < schemas.size(); i++) {
             SchemaInstance s = new SchemaInstance(schemas.get(i));
-            s.dereference(schemas.get(i), "");
-            schemas.set(i, s.getSchema());
+            s.dereference(s.getSchema(), "");
+            schema_instances.add(s);
+        }
+
+        Collections.sort(schema_instances);
+
+        schemas = new ArrayList<JsonNode>();
+        for (SchemaInstance s : schema_instances) {
+            schemas.add(s.getSchema());
         }
 
         return schemas;

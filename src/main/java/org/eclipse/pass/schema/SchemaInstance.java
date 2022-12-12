@@ -35,14 +35,17 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
     private String keyRef = "$ref";
     private String schema_name;
     private String schema_dir;
+
+    // all dependencies of a schema on other schemas, as well as dependencies of the
+    // schemas with "greater" value than the given schema
     private static Map<String, Collection<String>> orderedDeps = new HashMap<String, Collection<String>>();
 
     public SchemaInstance(JsonNode schema) {
         this.schema = schema;
         String[] schema_tkns = schema.get("$id").asText().split("/");
-        schema_name = schema_tkns[schema_tkns.length - 1]; // Do I need to add in a case to handle schema_tkns being
-                                                           // empty???
+        schema_name = schema_tkns[schema_tkns.length - 1];
         schema_dir = schema_tkns[schema_tkns.length - 3] + "/" + schema_tkns[schema_tkns.length - 2];
+        findRefs(schema, "");
         findDeps();
     }
 
@@ -69,10 +72,11 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
         // should appear first
         int this_properties = countFormProperties();
         int s_properties = s.countFormProperties();
-
         if (this_properties > s_properties) {
+            orderedDeps.put(s.getName(), orderedDeps.get(schema_name));
             return -1;
         } else if (this_properties < s_properties) {
+            orderedDeps.put(schema_name, orderedDeps.get(s.getName()));
             return 1;
         }
         return 0;
@@ -80,8 +84,10 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
 
     private boolean checkIfReferenced(String referencer, String schema) {
         if (orderedDeps.get(referencer) != null) {
-            if (orderedDeps.get(referencer).contains(schema)) {
-                return true;
+            for (String s : orderedDeps.get(referencer)) {
+                if (s.startsWith(schema)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -108,35 +114,63 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
      * schema
      *
      * @return List<String> List of URIs to schemas referenced by this schema
+     * @throws FetchFailException
      *
      */
-    void dereference(JsonNode node, String pointer) {
+    void dereference(JsonNode node, String pointer) throws FetchFailException {
+
+        if (node == null) {
+            throw new FetchFailException("Null reference at " + pointer);
+        }
+
         Iterator<String> it = node.fieldNames();
         it.forEachRemaining(k -> {
             JsonNode value = node.get(k);
             String path;
             String stringval;
             if (value.isValueNode()) {
-                if (k.equals(keyRef)) { // only do this if url is not null?
+                if (k.equals(keyRef)) {
                     path = pointer + "/" + k;
                     stringval = value.asText();
+
+                    // If the reference is pointing to the current schema,
+                    // replace it by the value it is pointing to
                     if (stringval.charAt(0) == '#') {
                         ((ObjectNode) schema).replace(path.split("/")[1],
                                 resolveRef(path, stringval.split("#")[1], schema));
-                    } else { // referencing other schema
+                    } else { // referencing another schema
                         try {
                             JsonNode ext_schema = SchemaFetcher
                                     .getLocalSchema("/" + schema_dir + "/" + stringval.split("#")[0]);
+
                             ((ObjectNode) schema).replace(path.split("/")[1],
                                     resolveRef(path, stringval.split("#")[1], ext_schema));
                         } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+
+                            throw new FetchFailException(
+                                    "Could not fetch the schema: " + "/" + schema_dir + "/" + stringval.split("#")[0]);
+
                         }
                     }
                 }
             } else if (value.isObject()) {
                 dereference(value, pointer + "/" + k);
+            }
+        });
+    }
+
+    private void findRefs(JsonNode node, String pointer) {
+        Iterator<String> it = node.fieldNames();
+        it.forEachRemaining(k -> {
+            JsonNode value = node.get(k);
+            String path;
+            if (value.isValueNode()) {
+                if (k.equals(keyRef)) {
+                    path = pointer + "/" + k;
+                    refs.put(path, value.asText());
+                }
+            } else if (value.isObject()) {
+                findRefs(value, pointer + "/" + k);
             }
         });
     }
