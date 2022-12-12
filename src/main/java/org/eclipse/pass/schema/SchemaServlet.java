@@ -19,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -109,21 +108,34 @@ public class SchemaServlet extends HttpServlet {
         SchemaService s = new SchemaService(client);
         s.setRepositoryList(repository_list);
 
+        ObjectMapper m = new ObjectMapper();
         JsonNode mergedSchema;
+        String jsonResponse = "";
         try {
             mergedSchema = s.getMergedSchema();
-            // Encode resulting schema(s) into a JSON response object
-            ObjectMapper m = new ObjectMapper();
-            String jsonResponse = m.writeValueAsString(mergedSchema);
-            PrintWriter out = response.getWriter();
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            out.print(jsonResponse);
-            out.flush();
-        } catch (URISyntaxException e) {
-            // TODO Auto-generated catch block
+            jsonResponse += m.writeValueAsString(mergedSchema);
+        } catch (FetchFailException e) {
             e.printStackTrace();
+        } catch (MergeFailException e) { // if the merge was unsuccessful
+            try {
+                List<JsonNode> individual_schemas = s.getIndividualSchemas();
+                for (int i = 0; i < individual_schemas.size(); i++) {
+                    jsonResponse += m.writeValueAsString(individual_schemas.get(i));
+                    if (i < individual_schemas.size() - 1) {
+                        jsonResponse += ",";
+                    }
+                }
+            } catch (FetchFailException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
         }
-    }
 
+        // Encode resulting schema(s) into a JSON response object
+        PrintWriter out = response.getWriter();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        out.print(jsonResponse);
+        out.flush();
+    }
 }
