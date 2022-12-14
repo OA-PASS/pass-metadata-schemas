@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -35,6 +37,7 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
     private String keyRef = "$ref";
     private String schema_name;
     private String schema_dir;
+    private static final Logger logger = Logger.getLogger(SchemaServlet.class.getName());
 
     // all dependencies of a schema on other schemas, as well as dependencies of the
     // schemas with "greater" value than the given schema
@@ -117,11 +120,7 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
      * @throws FetchFailException
      *
      */
-    void dereference(JsonNode node, String pointer) throws FetchFailException {
-
-        if (node == null) {
-            throw new FetchFailException("Null reference at " + pointer);
-        }
+    void dereference(JsonNode node, String pointer) {
 
         Iterator<String> it = node.fieldNames();
         it.forEachRemaining(k -> {
@@ -139,18 +138,17 @@ public class SchemaInstance implements Comparable<SchemaInstance> {
                         ((ObjectNode) schema).replace(path.split("/")[1],
                                 resolveRef(path, stringval.split("#")[1], schema));
                     } else { // referencing another schema
+                        JsonNode ext_schema = null;
                         try {
-                            JsonNode ext_schema = SchemaFetcher
-                                    .getLocalSchema("/" + schema_dir + "/" + stringval.split("#")[0]);
-
-                            ((ObjectNode) schema).replace(path.split("/")[1],
-                                    resolveRef(path, stringval.split("#")[1], ext_schema));
+                            ext_schema = SchemaFetcher.getLocalSchema("/" + schema_dir + "/" + stringval.split("#")[0]);
+                        } catch (IllegalArgumentException e) {
+                            logger.log(Level.SEVERE, "Invalid Schema URI", e);
                         } catch (IOException e) {
-
-                            throw new FetchFailException(
-                                    "Could not fetch the schema: " + "/" + schema_dir + "/" + stringval.split("#")[0]);
-
+                            logger.log(Level.SEVERE, "Failed to dereference schema", e);
                         }
+
+                        ((ObjectNode) schema).replace(path.split("/")[1],
+                                resolveRef(path, stringval.split("#")[1], ext_schema));
                     }
                 }
             } else if (value.isObject()) {

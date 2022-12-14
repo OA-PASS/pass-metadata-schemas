@@ -19,8 +19,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -41,26 +44,24 @@ import org.dataconservancy.pass.client.PassClientFactory;
 @WebServlet("/schemaservice")
 public class SchemaServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private List<String> repository_list;
-    private String next;
     private PassClient client;
+    private static final Logger logger = Logger.getLogger(SchemaServlet.class.getName());
 
     /**
      * Servlet constructor.
      */
     public SchemaServlet() {
         client = PassClientFactory.getPassClient();
-        repository_list = new ArrayList<String>();
     }
 
     // used for unit testing to insert a mock client
     public SchemaServlet(PassClient client) {
         this.client = client;
-        repository_list = new ArrayList<String>();
     }
 
     protected List<String> readText(BufferedReader r) throws IOException {
-        // r.readLine(); // skip the first line containing header information
+        String next;
+        List<String> repository_list = new ArrayList<String>();
         while ((next = r.readLine()) != null) {
             repository_list.add(next);
         }
@@ -68,10 +69,10 @@ public class SchemaServlet extends HttpServlet {
     }
 
     protected List<String> readJson(BufferedReader r) throws Exception {
-        // r.readLine(); // skip the first line containing header information
+        String next;
         String json_list = r.readLine();
         ObjectMapper o = new ObjectMapper();
-        repository_list = o.readValue(json_list, new TypeReference<ArrayList<String>>() {
+        List<String> repository_list = o.readValue(json_list, new TypeReference<ArrayList<String>>() {
         });
         if ((next = r.readLine()) != null) {
             throw new Exception("Too many lines");
@@ -88,6 +89,8 @@ public class SchemaServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        List<String> repository_list = new ArrayList<String>();
+
         response.setHeader("Accept-Post", "application/json, text/plain");
         response.setHeader("Server", "PASS schema service");
 
@@ -100,36 +103,38 @@ public class SchemaServlet extends HttpServlet {
             try {
                 repository_list = readJson(br);
             } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.log(Level.SEVERE, "Failed to parse list of repository URIs", e);
+                response.sendError(HttpServletResponse.SC_CONFLICT, "Failed to parse list of repository URIs");
             }
         }
 
         SchemaService s = new SchemaService(client);
-        s.setRepositoryList(repository_list);
 
         ObjectMapper m = new ObjectMapper();
-        JsonNode mergedSchema;
+        JsonNode mergedSchema = null;
         String jsonResponse = "";
         try {
-            mergedSchema = s.getMergedSchema();
-            jsonResponse += m.writeValueAsString(mergedSchema);
-        } catch (FetchFailException e) {
-            e.printStackTrace();
+            mergedSchema = s.getMergedSchema(repository_list);
+        } catch (IllegalArgumentException | URISyntaxException | IOException e) {
+            logger.log(Level.SEVERE, "Failed to parse schemas", e);
+            response.sendError(HttpServletResponse.SC_CONFLICT, "Failed to parse schemas");
         } catch (MergeFailException e) { // if the merge was unsuccessful
+            List<JsonNode> individual_schemas;
             try {
-                List<JsonNode> individual_schemas = s.getIndividualSchemas();
+                individual_schemas = s.getIndividualSchemas(repository_list);
                 for (int i = 0; i < individual_schemas.size(); i++) {
                     jsonResponse += m.writeValueAsString(individual_schemas.get(i));
                     if (i < individual_schemas.size() - 1) {
                         jsonResponse += ",";
                     }
                 }
-            } catch (FetchFailException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
+            } catch (IllegalArgumentException | URISyntaxException | IOException e1) {
+                logger.log(Level.SEVERE, "Failed to retrieve schemas", e);
+                response.sendError(HttpServletResponse.SC_CONFLICT, "Failed to retrieve schemas");
             }
+
         }
+        jsonResponse += m.writeValueAsString(mergedSchema);
 
         // Encode resulting schema(s) into a JSON response object
         PrintWriter out = response.getWriter();

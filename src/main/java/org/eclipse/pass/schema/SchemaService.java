@@ -15,6 +15,7 @@
  */
 package org.eclipse.pass.schema;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -30,8 +31,6 @@ import org.dataconservancy.pass.client.PassClientFactory;
 public class SchemaService {
 
     private PassClient client;
-    private List<String> repository_list;
-    private String next;
 
     public SchemaService() {
         client = PassClientFactory.getPassClient();
@@ -47,35 +46,31 @@ public class SchemaService {
      *
      * @param repositoryUris List of repository URIs containing schemas to be merged
      * @return JsonSchema merged schema
+     * @throws IOException
+     * @throws IllegalArgumentException
      * @throws URISyntaxException
      * @throws FetchFailException
      */
-    JsonNode getMergedSchema() throws FetchFailException, MergeFailException {
+    JsonNode getMergedSchema(List<String> repository_list)
+            throws MergeFailException, IllegalArgumentException, URISyntaxException, IOException {
 
         // Create a SchemaFetcher instance to get the schemas from the repository URIs
         SchemaFetcher f = new SchemaFetcher(client);
         List<JsonNode> repository_schemas;
-        try {
-            repository_schemas = f.getSchemas(repository_list);
-        } catch (FetchFailException e) {
-            throw new FetchFailException(e.getMessage());
-        }
-        SchemaMerger m = new SchemaMerger(repository_schemas);
+        repository_schemas = f.getSchemas(repository_list);
+        SchemaMerger m = new SchemaMerger();
         JsonNode mergedSchema;
-        mergedSchema = m.mergeSchemas();
+        mergedSchema = m.mergeSchemas(repository_schemas);
 
         return mergedSchema;
     }
 
-    List<JsonNode> getIndividualSchemas() throws FetchFailException {
+    List<JsonNode> getIndividualSchemas(List<String> repository_list)
+            throws IllegalArgumentException, URISyntaxException, IOException {
         SchemaFetcher f = new SchemaFetcher(client);
         List<JsonNode> repository_schemas;
         repository_schemas = f.getSchemas(repository_list);
         return repository_schemas;
-    }
-
-    public void setRepositoryList(List<String> repository_list) {
-        this.repository_list = repository_list;
     }
 
 }

@@ -158,31 +158,6 @@ class SchemaFetcherTest {
         assertEquals(expected, result);
     }
 
-    // Test exception handling
-    @Test
-    void invalidRepositoryUriSyntaxTest() throws Exception {
-        Exception ex = assertThrows(FetchFailException.class, () -> {
-            s.getRepositorySchemas("repository uri");
-        });
-
-        String expectedMessage = "Invalid URI syntax: repository uri";
-        String actualMessage = ex.getMessage();
-
-        assertEquals(expectedMessage, actualMessage);
-    }
-
-    @Test
-    void invalidRepositoryUriTest() throws Exception {
-        Exception ex = assertThrows(FetchFailException.class, () -> {
-            s.getRepositorySchemas("repository3");
-        });
-
-        String expectedMessage = "Invalid repository URI: repository3";
-        String actualMessage = ex.getMessage();
-
-        assertEquals(expectedMessage, actualMessage);
-    }
-
     @Test
     void invalidSchemaUriTest() throws Exception {
         when(passClientMock.findByAttribute(Repository.class, "@id", new URI("repository1")))
@@ -190,16 +165,10 @@ class SchemaFetcherTest {
         when(passClientMock.readResource(new URI("uri_to_repository1"), Repository.class)).thenReturn(repository1mock);
         List<URI> r1_schemas_list = Arrays.asList(new URI("/example/schemas/invalidschema.json"),
                 new URI("/example/schemas/schema2.json"));
-
         when(repository1mock.getSchemas()).thenReturn(r1_schemas_list);
-        Exception ex = assertThrows(FetchFailException.class, () -> {
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
             s.getRepositorySchemas("repository1");
         });
-
-        String expectedMessage = "Could not read schema at the following URI: /example/schemas/invalidschema.json";
-        String actualMessage = ex.getMessage();
-
-        assertEquals(expectedMessage, actualMessage);
     }
 
 }
