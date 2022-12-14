@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,9 +32,8 @@ class SchemaServiceTest {
 
     @Test
     void getMergedSchemaTest() throws Exception {
-        List<String> repository_uris = new ArrayList<String>(Arrays.asList("repository1", "repository2"));
+        List<String> repository_uris = Arrays.asList("repository1", "repository2");
         s = new SchemaService(passClientMock);
-        s.setRepositoryList(repository_uris);
         when(passClientMock.findByAttribute(Repository.class, "@id", new URI("repository1")))
                 .thenReturn(new URI("uri_to_repository1"));
         when(passClientMock.findByAttribute(Repository.class, "@id", new URI("repository2")))
@@ -53,7 +51,7 @@ class SchemaServiceTest {
                 .getResourceAsStream("/example/schemas/example_merged_dereferenced.json");
         ObjectMapper map = new ObjectMapper();
         JsonNode expected = map.readTree(expected_schema_json);
-        JsonNode result = s.getMergedSchema();
+        JsonNode result = s.getMergedSchema(repository_uris);
         assertEquals(expected, result);
     }
 }

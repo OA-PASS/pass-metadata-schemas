@@ -34,11 +34,9 @@ public class SchemaMerger {
 
     private ObjectNode merged;
     private Set<String> ignorable = new HashSet<>(Arrays.asList("title", "description", "$id", "$schema", "$comment"));
-    private List<JsonNode> schemasToMerge;
 
-    public SchemaMerger(List<JsonNode> repository_schemas) {
+    public SchemaMerger() {
         merged = new ObjectMapper().createObjectNode();
-        schemasToMerge = repository_schemas;
     }
 
     /**
@@ -48,7 +46,7 @@ public class SchemaMerger {
      * @param schemas list of schemas to be merged
      * @return SchemaInstance of merged schemas
      */
-    JsonNode mergeSchemas() throws MergeFailException {
+    JsonNode mergeSchemas(List<JsonNode> schemasToMerge) throws MergeFailException {
         for (JsonNode schema : schemasToMerge) {
             Iterator<String> fieldnames = schema.fieldNames();
             fieldnames.forEachRemaining(f -> {

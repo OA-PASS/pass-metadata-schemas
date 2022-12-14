@@ -46,10 +46,13 @@ public class SchemaFetcher {
      * Get all SchemaInstance objects corresponding to the repository URIs
      *
      * @return List<SchemaInstance> ArrayList of relevant SchemaInstance objects
+     * @throws IOException
+     * @throws IllegalArgumentException
      * @throws URISyntaxException
      * @throws FetchFailException
      */
-    List<JsonNode> getSchemas(List<String> repository_uris) throws FetchFailException {
+    List<JsonNode> getSchemas(List<String> repository_uris)
+            throws IllegalArgumentException, URISyntaxException, IOException {
 
         List<JsonNode> schemas = new ArrayList<JsonNode>();
         List<SchemaInstance> schema_instances = new ArrayList<SchemaInstance>();
@@ -90,28 +93,19 @@ public class SchemaFetcher {
      * @throws FetchFailException
      * @throws IOException
      * @throws URISyntaxException
+     * @throws IllegalArgumentException
      */
-    List<JsonNode> getRepositorySchemas(String repository_uri) throws FetchFailException {
+    List<JsonNode> getRepositorySchemas(String repository_uri)
+            throws URISyntaxException, IllegalArgumentException, IOException {
         URI uri_r1;
         Repository r1 = null;
         List<JsonNode> repository_schemas = new ArrayList<JsonNode>();
-        try {
-            uri_r1 = client.findByAttribute(Repository.class, "@id", new URI(repository_uri));
-        } catch (URISyntaxException e1) {
-            throw new FetchFailException("Invalid URI syntax: " + repository_uri);
-        }
+        uri_r1 = client.findByAttribute(Repository.class, "@id", new URI(repository_uri));
         r1 = client.readResource(uri_r1, Repository.class);
-        if (r1 == null) {
-            throw new FetchFailException("Invalid repository URI: " + repository_uri);
-        }
 
         List<URI> schema_uris = r1.getSchemas();
         for (URI schema_uri : schema_uris) {
-            try {
-                repository_schemas.add(getSchemaFromUri(schema_uri));
-            } catch (IOException | IllegalArgumentException e) {
-                throw new FetchFailException("Could not read schema at the following URI: " + schema_uri);
-            }
+            repository_schemas.add(getSchemaFromUri(schema_uri));
         }
 
         return repository_schemas;

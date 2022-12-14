@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,9 +52,9 @@ class SchemaMergerTest {
         JsonNode schema_two = map.readTree(schema2);
         JsonNode expected = map.readTree(expected_json);
 
-        List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two));
-        merger = new SchemaMerger(toMerge);
-        JsonNode result = merger.mergeSchemas();
+        List<JsonNode> toMerge = Arrays.asList(schema_one, schema_two);
+        merger = new SchemaMerger();
+        JsonNode result = merger.mergeSchemas(toMerge);
         assertEquals(result, expected);
     }
 
@@ -77,9 +76,9 @@ class SchemaMergerTest {
         JsonNode schema_two = map.readTree(schema2);
         JsonNode expected = map.readTree(expected_json);
 
-        List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two));
-        merger = new SchemaMerger(toMerge);
-        JsonNode result = merger.mergeSchemas();
+        List<JsonNode> toMerge = Arrays.asList(schema_one, schema_two);
+        merger = new SchemaMerger();
+        JsonNode result = merger.mergeSchemas(toMerge);
         assertEquals(expected, result);
     }
 
@@ -94,9 +93,9 @@ class SchemaMergerTest {
         JsonNode schema_three = map.readTree(schema3);
         JsonNode expected = map.readTree(expected_json);
 
-        List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two, schema_three));
-        merger = new SchemaMerger(toMerge);
-        JsonNode result = merger.mergeSchemas();
+        List<JsonNode> toMerge = Arrays.asList(schema_one, schema_two, schema_three);
+        merger = new SchemaMerger();
+        JsonNode result = merger.mergeSchemas(toMerge);
         assertEquals(expected, result);
     }
 
@@ -113,9 +112,9 @@ class SchemaMergerTest {
         JsonNode schema_three = map.readTree(schema3);
         JsonNode expected = map.readTree(expected_json);
 
-        List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two, schema_three));
-        merger = new SchemaMerger(toMerge);
-        JsonNode result = merger.mergeSchemas();
+        List<JsonNode> toMerge = Arrays.asList(schema_one, schema_two, schema_three);
+        merger = new SchemaMerger();
+        JsonNode result = merger.mergeSchemas(toMerge);
         assertEquals(expected, result);
     }
 
@@ -142,10 +141,9 @@ class SchemaMergerTest {
         JsonNode schema_four = map.readTree(schema4);
         JsonNode expected = map.readTree(expected_json);
 
-        List<JsonNode> toMerge = new ArrayList<JsonNode>(
-                Arrays.asList(schema_one, schema_two, schema_three, schema_four));
-        merger = new SchemaMerger(toMerge);
-        JsonNode result = merger.mergeSchemas();
+        List<JsonNode> toMerge = Arrays.asList(schema_one, schema_two, schema_three, schema_four);
+        merger = new SchemaMerger();
+        JsonNode result = merger.mergeSchemas(toMerge);
         assertEquals(expected, result);
     }
 
@@ -163,10 +161,9 @@ class SchemaMergerTest {
         JsonNode schema_four = map.readTree(schema4);
         JsonNode expected = map.readTree(expected_json);
 
-        List<JsonNode> toMerge = new ArrayList<JsonNode>(
-                Arrays.asList(schema_one, schema_two, schema_three, schema_four));
-        merger = new SchemaMerger(toMerge);
-        JsonNode result = merger.mergeSchemas();
+        List<JsonNode> toMerge = Arrays.asList(schema_one, schema_two, schema_three, schema_four);
+        merger = new SchemaMerger();
+        JsonNode result = merger.mergeSchemas(toMerge);
         assertEquals(expected, result);
     }
 
@@ -177,10 +174,10 @@ class SchemaMergerTest {
         JsonNode schema_one = map.readTree(schema1);
         JsonNode schema_two = map.readTree(schema2);
 
-        List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two));
-        merger = new SchemaMerger(toMerge);
+        List<JsonNode> toMerge = Arrays.asList(schema_one, schema_two);
+        merger = new SchemaMerger();
         Exception ex = assertThrows(MergeFailException.class, () -> {
-            merger.mergeSchemas();
+            merger.mergeSchemas(toMerge);
         });
 
         String expectedMessage = "Type conflict for property 'key': ARRAY vs STRING/NUMBER";
@@ -196,10 +193,10 @@ class SchemaMergerTest {
         JsonNode schema_one = map.readTree(schema1);
         JsonNode schema_two = map.readTree(schema2);
 
-        List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two));
-        merger = new SchemaMerger(toMerge);
+        List<JsonNode> toMerge = Arrays.asList(schema_one, schema_two);
+        merger = new SchemaMerger();
         Exception ex = assertThrows(MergeFailException.class, () -> {
-            merger.mergeSchemas();
+            merger.mergeSchemas(toMerge);
         });
 
         String expectedMessage = "Type conflict for property 'key': STRING vs ARRAY";
@@ -215,10 +212,10 @@ class SchemaMergerTest {
         JsonNode schema_one = map.readTree(schema1);
         JsonNode schema_two = map.readTree(schema2);
 
-        List<JsonNode> toMerge = new ArrayList<JsonNode>(Arrays.asList(schema_one, schema_two));
-        merger = new SchemaMerger(toMerge);
+        List<JsonNode> toMerge = Arrays.asList(schema_one, schema_two);
+        merger = new SchemaMerger();
         Exception ex = assertThrows(MergeFailException.class, () -> {
-            merger.mergeSchemas();
+            merger.mergeSchemas(toMerge);
         });
 
         String expectedMessage = "Type conflict for property 'key': STRING vs OBJECT";
